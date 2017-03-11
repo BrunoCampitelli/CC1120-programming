@@ -125,6 +125,8 @@ void cc1120_reset() {
 
 char Send_SPI(char verzenden){
   uint8_t so = 0x00;
+  Serial.print("SEND_PSI: ");
+  Serial.print((uint8_t)verzenden);
   uint8_t i = 0;
   //NSDELAY
   // data transfer
@@ -141,7 +143,9 @@ char Send_SPI(char verzenden){
     // wait t_sd = 10 ns
     //NSDELAY
   }
-        return so;
+  Serial.print(" --> so: ");
+  Serial.println(so >> 4);
+  return so;
 }
 
 
@@ -182,11 +186,12 @@ void loop() {
   //wait for it to finish transmitting
 
   //cc1120_config();
-  
+  Serial.println("\n");
   delay(1000);
   
- //cc1120_mode_idle();
-// cc1120_strobe(CC1120_SFTX);
+  cc1120_mode_idle();
+  delay(10);
+  cc1120_strobe(CC1120_SFTX);
 }
 
 static void createPacket(uint8_t txBuffer[]) {
@@ -201,11 +206,22 @@ static void createPacket(uint8_t txBuffer[]) {
     }
 }
 
+/*
 void cc1120_writetx(uint8_t abuffer[]){
 
   for (uint8_t i=0; i<(uint8_t)sizeof(abuffer); i++){
     cc1120_strobe(CC1120_FIFOC);
     cc1120_strobe(i);
+  }
+  
+}
+*/
+
+void cc1120_writetx(uint8_t abuffer[]){
+
+  for (uint8_t i=0; i<(uint8_t)sizeof(abuffer); i++){
+    cc1120_strobe(CC1120_FIFO);
+    cc1120_strobe(abuffer[i]);
   }
   
 }
