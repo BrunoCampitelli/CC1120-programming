@@ -99,20 +99,22 @@ char Send_SPI(char verzenden){
 }
 
 char Send_SPI_2(uint8_t verzenden){
-  uint8_t so = 0x00;
+  uint16_t so = 0x00;
+  uint16_t super_verzenden = 0 | (uint16_t) verzenden;
   Serial.print("SEND_SPI_2: ");
   Serial.print((uint8_t)verzenden);
   
 
   digitalWrite(SS,LOW);
   while(digitalRead(MISO));
-  SPI.transfer((uint8_t) verzenden);
-  so = SPI.transfer(0x00);
+  so = SPI.transfer((uint16_t) verzenden);
   digitalWrite(SS,HIGH);
   
   Serial.print(" --> so: ");
-  Serial.println(so >> 4);
-  return so;
+  Serial.print(so & 0x00FF);
+  Serial.print("\t");
+  Serial.println((so & 0xFF00) >> 8);
+  return so >> 8;
 }
 
 
