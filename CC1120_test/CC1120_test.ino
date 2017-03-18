@@ -89,6 +89,7 @@ char Send_SPI(char verzenden){
   Serial.print((uint8_t)verzenden);
 
   digitalWrite(SS,LOW);
+  while(digitalRead(MISO));
   so = SPI.transfer(verzenden);
   digitalWrite(SS,HIGH);
   
@@ -107,6 +108,7 @@ void setup() {
   digitalWrite(SS,HIGH);
   SPI.begin();
  // SPI.beginTransaction(s);
+ //SPI.setDataMode(
  SPI.setClockDivider(SPI_CLOCK_DIV128);
   delay(1000);
   cc1120_reset(); //resets chip
@@ -127,7 +129,7 @@ uint8_t i = 0;
 uint16_t packetCounter = 0;
     uint8_t txBuffer[PKTLEN+1] = {0};
 void loop() {
-
+/*
   //cc1120_mode_idle();
   packetCounter++;
   createPacket(txBuffer);
@@ -143,10 +145,10 @@ void loop() {
   //cc1120_config();
   Serial.println("\n");
 //  delay(1000);
-  
+  */
   cc1120_mode_idle();
-  delay(10);
-  cc1120_strobe(CC1120_SFTX);
+  delay(10);/*
+  cc1120_strobe(CC1120_SFTX);*/
 }
 
 static void createPacket(uint8_t txBuffer[]) {
@@ -227,10 +229,11 @@ static void manualCalibration(void) {
     do 
     {
         cc112xSpiReadReg(CC112X_MARCSTATE, &marcstate, 1);
-        Serial.print("3.5 ");
-        Serial.println(marcstate);
-        delay(1000);
-    } while (!(marcstate & 0x40) && (marcstate & 0xb0));//while (marcstate != 0x41);
+        //Serial.print("3.5 ");
+        //Serial.println(marcstate);
+        //delay(1000);
+    } //while (!(marcstate & 0x40) && (marcstate & 0xb0));
+    while (marcstate != 0x41);
     
     
     // 4) Read FS_VCO2, FS_VCO4 and FS_CHP register obtained with high VCDAC_START value
@@ -261,7 +264,8 @@ static void manualCalibration(void) {
         Serial.println("7.5");
         Serial.println(marcstate);
         delay(1000);
-    } while (!(marcstate & 0x40) && (marcstate & 0xb0)); //while (marcstate != 0x41);
+    } //while (!(marcstate & 0x40) && (marcstate & 0xb0)); 
+    while (marcstate != 0x41);
     
     
     // 8) Read FS_VCO2, FS_VCO4 and FS_CHP register obtained with mid VCDAC_START value
