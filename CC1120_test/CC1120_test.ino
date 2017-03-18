@@ -35,7 +35,7 @@ uint8_t cc1120_write(uint8_t address, uint8_t data) {
 }
 
 uint8_t cc1120_read(uint8_t address) {
-  return cc1120_write(CC1120_READ | address, 0);
+  return Send_SPI_2(address);
 }
 
 uint8_t cc1120_read_rx() {
@@ -98,7 +98,22 @@ char Send_SPI(char verzenden){
   return so;
 }
 
+char Send_SPI_2(uint8_t verzenden){
+  uint8_t so = 0x00;
+  Serial.print("SEND_SPI_2: ");
+  Serial.print((uint8_t)verzenden);
+  
 
+  digitalWrite(SS,LOW);
+  while(digitalRead(MISO));
+  SPI.transfer((uint8_t) verzenden);
+  so = SPI.transfer(0x00);
+  digitalWrite(SS,HIGH);
+  
+  Serial.print(" --> so: ");
+  Serial.println(so >> 4);
+  return so;
+}
 
 
 void setup() {
