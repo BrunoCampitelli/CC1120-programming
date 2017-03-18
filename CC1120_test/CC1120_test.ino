@@ -1,7 +1,7 @@
 #include <SPI.h>
 #include "CC1120.h"
 
-SPISettings s = SPISettings(4000, MSBFIRST, SPI_MODE0);
+//SPISettings s = SPISettings(4000, MSBFIRST, SPI_MODE0);
 #define CC1120_READ 0x80
 #define CC1120_EXTENDED_ADDRESS 0x2f
 #define PKTLEN                  30  // 1 < PKTLEN < 126
@@ -106,7 +106,8 @@ void setup() {
   pinMode(SS, OUTPUT);
   digitalWrite(SS,HIGH);
   SPI.begin();
-  SPI.beginTransaction(s);
+ // SPI.beginTransaction(s);
+ SPI.setClockDivider(SPI_CLOCK_DIV128);
   delay(1000);
   cc1120_reset(); //resets chip
   cc1120_config(); //runs through settings register
@@ -141,7 +142,7 @@ void loop() {
 
   //cc1120_config();
   Serial.println("\n");
-  delay(1000);
+//  delay(1000);
   
   cc1120_mode_idle();
   delay(10);
