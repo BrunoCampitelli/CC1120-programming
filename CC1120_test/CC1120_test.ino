@@ -15,6 +15,7 @@ SPISettings s = SPISettings(4000, MSBFIRST, SPI_MODE0);
 #define CC1120_SFRX 0x3a
 #define CC1120_SFTX 0x3b
 #define CC1120_SNOP 0x3d
+#define SS 10
 
 #define CC1120_FIFO 0x3F
 
@@ -87,9 +88,10 @@ char Send_SPI(char verzenden){
   Serial.print("SEND_PSI: ");
   Serial.print((uint8_t)verzenden);
 
-  SPI.beginTransaction(s);
+  digitalWrite(SS,LOW);
   so = SPI.transfer(verzenden);
-  SPI.endTransaction();
+  digitalWrite(SS,HIGH);
+  
   Serial.print(" --> so: ");
   Serial.println(so >> 4);
   return so;
@@ -99,9 +101,14 @@ char Send_SPI(char verzenden){
 
 
 void setup() {
-  cc1120_init_pins();
-  cc1120_reset(); //resets chip
+//  cc1120_init_pins();
   Serial.begin(9600);
+  pinMode(SS, OUTPUT);
+  digitalWrite(SS,HIGH);
+  SPI.begin();
+  SPI.beginTransaction(s);
+  delay(1000);
+  cc1120_reset(); //resets chip
   cc1120_config(); //runs through settings register
   //cc1120_write(CC112X_FREQ2, 0x6C);
   //Serial.println(cc1120_read(CC112X_FREQ2));
