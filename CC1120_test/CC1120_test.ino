@@ -38,6 +38,10 @@ uint8_t cc1120_read(uint8_t address) {
   return Send_SPI_2(address);
 }
 
+uint8_t cc1120_read_EX(uint8_t address) {
+  return Send_SPI_3(address);
+}
+
 uint8_t cc1120_read_rx() {
   return 0;
 }
@@ -107,7 +111,7 @@ char Send_SPI_2(uint8_t verzenden){
 
   digitalWrite(SS,LOW);
   while(digitalRead(MISO));
-  so = SPI.transfer((uint16_t) verzenden);
+  SPI.transfer((uint16_t) verzenden);
   digitalWrite(SS,HIGH);
   
   Serial.print(" --> so: ");
@@ -115,6 +119,22 @@ char Send_SPI_2(uint8_t verzenden){
   Serial.print("\t");
   Serial.println((so & 0xFF00) >> 8);
   return so >> 8;
+}
+
+char Send_SPI_3(uint16_t verzenden){
+  uint8_t so = 0x00;
+  Serial.print("SEND_PSI: ");
+  Serial.print((uint8_t)verzenden);
+
+  digitalWrite(SS,LOW);
+  while(digitalRead(MISO));
+  SPI.transfer(verzenden);
+  so = SPI.transfer(0x00);
+  digitalWrite(SS,HIGH);
+  
+  Serial.print(" --> so: ");
+  Serial.println(so);
+  return so;
 }
 
 
@@ -208,7 +228,7 @@ void cc112xSpiWriteReg(uint8_t addr, uint8_t *data, uint8_t len){
 }
 
 void cc112xSpiReadReg(uint8_t addr, uint8_t *data, uint8_t len){
-   *data = cc1120_read(addr);
+   *data = cc1120_read_EX(addr);
 }
 
 void trxSpiCmdStrobe(uint8_t cmd){
