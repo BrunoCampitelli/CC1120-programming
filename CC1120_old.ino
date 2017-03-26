@@ -127,6 +127,12 @@ char Send_SPI(char verzenden){
   uint8_t so = 0x00;
   Serial.print("SEND_PSI: ");
   Serial.print((uint8_t)verzenden);
+
+  SPI.beginTransaction(s);
+  so = SPI.transfer(verzenden);
+  SPI.endTransaction();
+  
+  /*
   uint8_t i = 0;
   //NSDELAY
   // data transfer
@@ -142,7 +148,7 @@ char Send_SPI(char verzenden){
     digitalWrite(CC1120_SCLK, LOW);
     // wait t_sd = 10 ns
     //NSDELAY
-  }
+  }*/
   Serial.print(" --> so: ");
   Serial.println(so >> 4);
   return so;
