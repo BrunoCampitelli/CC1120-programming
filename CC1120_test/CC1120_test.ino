@@ -1,5 +1,6 @@
 #include <SPI.h>
 #include "CC1120.h"
+#include "string.h"
 
 //SPISettings s = SPISettings(4000, MSBFIRST, SPI_MODE0);
 #define CC1120_READ 0x80
@@ -38,8 +39,8 @@ uint8_t cc1120_read(uint8_t address) {
   return Send_SPI_2(address);
 }
 
-uint8_t cc1120_read_EX(uint8_t address) {
-  return Send_SPI_3(address);
+uint8_t cc1120_read_EX(uint16_t address) {
+  return Send_SPI_3(0x8000 | address);
 }
 
 uint8_t cc1120_read_rx() {
@@ -85,6 +86,53 @@ void cc1120_mode_tx() {
 void cc1120_reset() {
   cc1120_strobe(CC1120_SRES);
   delay(20);
+}
+
+void comdbg(void){
+  int j;
+  uint8_t command=0;
+  char *input;
+  input = (char)malloc(10*sizeof(char));
+  Serial.println("debugging");
+
+  Serial.readBytes(input,10);
+  while(input[0]!='e'){
+  
+    if(input[1]="b"){ 
+      for (j=8; j>0; j--){
+        command+=((input[8-j+2]-48)<<j);
+      } 
+    Serial.print(input);
+    Serial.print(command);
+    Serial.print(" output: ");
+    Serial.println(SPI.transfer(command));
+    }
+    
+    else if(input[1]="x"){
+     if(input[2]<='9'&&input[2]>='0'){
+       command+=(input[2]-48)<<4;}
+     else {
+       command+=(input[2]-65)<<4;
+    }
+     if(input[3]<='9'&&input[3]>='0'){
+       command+=(input[3]-48);}
+     else {
+       command+=(input[3]-65);
+    }
+    Serial.print(input);
+    Serial.print(command);
+    Serial.print(" output: ");
+    Serial.println(SPI.transfer(command));
+    }
+    
+    else if(input[0]="h") digitalWrite(SS,HIGH);
+    else if(input[0]="l") digitalWrite(SS,LOW);
+    else Serial.println("error");
+    command=0;
+  Serial.readBytes(input,10);
+     }
+   free(input);
+   return;
 }
 
 char Send_SPI(char verzenden){
@@ -137,6 +185,24 @@ char Send_SPI_3(uint16_t verzenden){
   return so;
 }
 
+void send(unsigned char dat){
+
+  int j;
+  char so=0;
+  
+  waitms(14);
+  printf("\n\n");
+  digitalWrite(SCLK,0);
+  
+  for (j=0; j<8; j++){
+    digitalWrite(MOSI,dat>>j&1);
+    digitalWrite(SCLK,1);
+    digitalWrite(SCLK,0);
+    so+=digitalRead(MISO)<<j;
+    waitms(14);
+  }
+
+}
 
 void setup() {
 //  cc1120_init_pins();
@@ -147,6 +213,7 @@ void setup() {
  // SPI.beginTransaction(s);
  //SPI.setDataMode(
  SPI.setClockDivider(SPI_CLOCK_DIV128);
+ comdbg();
   delay(1000);
   cc1120_reset(); //resets chip
   cc1120_config(); //runs through settings register
